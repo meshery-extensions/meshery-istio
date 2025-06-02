@@ -35,8 +35,8 @@ ADAPTER_URLS := "localhost:10000 localhost:10001 localhost:10002 localhost:10004
 #-----------------------------------------------------------------------------
 REMOTE_PROVIDER_LOCAL="http://localhost:9876"
 MESHERY_CLOUD_DEV="http://localhost:9876"
-MESHERY_CLOUD_PROD="https://meshery.layer5.io"
-MESHERY_CLOUD_STAGING="https://staging-meshery.layer5.io"
+MESHERY_CLOUD_PROD="https://cloud.meshery.io"
+MESHERY_CLOUD_STAGING="https://staging-meshery.meshery.io"
 
 #-----------------------------------------------------------------------------
 # Server

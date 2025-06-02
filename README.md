@@ -11,14 +11,14 @@
 # Meshery Adapter for Istio
 <div align="center">
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/layer5/meshery-istio.svg)](https://hub.docker.com/r/layer5/meshery-istio)
-[![Go Report Card](https://goreportcard.com/badge/github.com/layer5io/meshery-istio)](https://goreportcard.com/report/github.com/meshery/meshery-istio)
+[![Docker Pulls](https://img.shields.io/docker/pulls/meshery/meshery-istio.svg)](https://hub.docker.com/r/meshery/meshery-istio)
+[![Go Report Card](https://goreportcard.com/badge/github.com/meshery/meshery-istio)](https://goreportcard.com/report/github.com/meshery/meshery-istio)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/meshery/meshery-istio/multi-platform.yml?branch=master)](https://github.com/meshery/meshery-istio/actions)
 [![GitHub](https://img.shields.io/github/license/meshery/meshery-istio.svg)](LICENSE)
 [![GitHub issues by-label](https://img.shields.io/github/issues/meshery/meshery-istio/help%20wanted.svg)](https://github.com/layer5io/meshery-istio/issues?q=is%3Aopen+is%3Aissue+label%3A"help+wanted")
-[![Website](https://img.shields.io/website/https/layer5.io/meshery.svg)](https://meshery.io/)
-[![Twitter Follow](https://img.shields.io/twitter/follow/layer5.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mesheryio)
-[![Discuss Users](https://img.shields.io/discourse/users?server=https%3A%2F%2Fdiscuss.layer5.io)](https://discuss.layer5.io)
+[![Website](https://img.shields.io/website/https/meshery.io/meshery.svg)](https://meshery.io/)
+[![Twitter Follow](https://img.shields.io/twitter/follow/meshery.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mesheryio)
+[![YouTube](https://img.shields.io/youtube/channel/views/UC0bG8d2a1c9f6e7b3d4f5gA.svg?style=social)](https://www.youtube.com/@mesheryio?sub_confirmation=1)
 [![Slack](https://img.shields.io/badge/Slack-@layer5.svg?logo=slack)](http://slack.meshery.io)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/3564/badge)](https://bestpractices.coreinfrastructure.org/projects/3564)
 

@@ -50,10 +50,12 @@ Our projects are community-built and welcome collaboration.👍 Be sure to see t
 ✔️ <em><strong>Explore more</strong></em> in the <a href="https://meshery.io/community#handbook">Community Handbook</a>.<br />
 </p>
 <p align="center">
-<i>Not sure where to start?</i> Grab an open issue with the <a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+archived%3Afalse+org%3Alayer5io+org%3Ameshery+org%3Aservice-mesh-performance+org%3Aservice-mesh-patterns+org%3Alayer5labs+label%3A%22help+wanted%22+">help-wanted label</a>.
+<i>Not sure where to start?</i> Grab an open issue with the 
+- <a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+archived%3Afalse+org%3Alayer5io+org%3Ameshery+org%3Aservice-mesh-performance+org%3Aservice-mesh-patterns+org%3Alayer5labs+label%3A%22help+wanted%22+">help-wanted label</a>.
++ <a href="https://github.com/issues?q=is%3Aopen+is%3Aissue+archived%3Afalse+org%3Alayer5io+org%3Ameshery+org%3Aservice-mesh-performance+org%3Aservice-mesh-patterns+org%3Alayer5labs+org%3Ameshery-extensions+label%3A%22help+wanted%22+">help-wanted label</a>.
+
 </p>
 
 **License**
 
 This repository and site are available as open source under the terms of the [Apache 2.0 License](https://opensource.org/licenses/Apache-2.0).
-

@@ -15,7 +15,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/meshery-extensions/meshery-istio)](https://goreportcard.com/report/github.com/meshery/meshery-istio)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/meshery/meshery-istio/multi-platform.yml?branch=master)](https://github.com/meshery/meshery-istio/actions)
 [![GitHub](https://img.shields.io/github/license/meshery/meshery-istio.svg)](LICENSE)
-[![GitHub issues by-label](https://img.shields.io/github/issues/meshery/meshery-istio/help%20wanted.svg)](https://github.com/meshery-extensions/meshery-istio/issues?q=is%3Aopen+is%3Aissue+label%3A"help+wanted")
+[![GitHub issues by-label](https://img.shields.io/github/issues/meshery/meshery-istio/help%20wanted.svg)](https://github.com/issues?q=is%3Aopen%20is%3Aissue%20archived%3Afalse%20(org%3Ameshery%20OR%20org%3Aservice-mesh-performance%20OR%20org%3Aservice-mesh-patterns%20OR%20org%3Ameshery-extensions)%20label%3A%22help%20wanted%22)
 [![Website](https://img.shields.io/website/https/meshery/meshery.svg)](https://meshery.io/)
 [![Twitter Follow](https://img.shields.io/twitter/follow/meshery.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mesheryio)
 [![Discuss Users](https://img.shields.io/discourse/users?server=http%3A%2F%2Fdiscuss.meshery.io)](https://meshery.io/community#discussion-forums)

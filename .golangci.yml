@@ -16,7 +16,6 @@ linters-settings:
       - prealloc
   govet:
     enabled: true
-    check-shadowing: true
     tests: true
   golint:
     enabled: true
@@ -35,26 +34,25 @@ linters-settings:
     enabled: true
     tests: true
 
-
 # Configuration for golangci-lint that is suitable for a Kubernetes operator project built with Golang
 linters:
   enable-all: false
   disable-all: false
-  linters:
+  enable:
     - gci
     - goconst
     - gocritic
     - govet
-    - golint
+    - revive
     - unused
     - cyclop
-    - scopelint
+    - exportloopref
   exclude-rules:
     - testpackage
 
-run:
+issues:
   enable-cache: true
-  skip-dirs:
+  exclude-dirs:
     - vendor
     - bundle
     - config

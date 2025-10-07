@@ -1,11 +1,13 @@
 <p style="text-align:center;" align="center">
   <a href="https://meshery.io">
     <picture align="center">
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/meshery/meshery-istio/master/img/readme/meshery-logo-dark-text-side.svg"  width="70%" align="center" style="margin-bottom:20px;">readme/community.svg
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/meshery/meshery-istio/master/img/readme/meshery-logo-dark-text-side.svg"  width="70%" align="center" style="margin-bottom:20px;">
       <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/meshery/meshery-istio/master/img/readme/meshery-logo-light-text-side.svg" width="70%" align="center" style="margin-bottom:20px;">
       <img alt="Shows an illustrated light mode meshery logo in light color mode and a dark mode meshery logo dark color mode." src="https://raw.githubusercontent.com/meshery/meshery-istio/master/img/readme/meshery-logo-light-text-side.svg" width="70%" align="center" style="margin-bottom:20px;">
     </picture>
-  </a><br /><br />
+  </a>
+  <a href="https://meshery.io/community"><img alt="Meshery Community" src="img/readme/community.svg" width="25%" align="left" /></a>
+  <br /><br />
 </p>
  
 # Meshery Adapter for Istio

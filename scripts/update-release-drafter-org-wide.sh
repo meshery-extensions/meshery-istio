@@ -30,16 +30,16 @@ COMMIT_MESSAGE="Add no-duplicate-categories to prevent duplicate PR entries in r
 
 echo -e "${GREEN}Starting release-drafter configuration update for ${ORG} organization...${NC}\n"
 
-# Get all repositories in the organization
+# Get all repositories in the organization with their default branches
 echo "Fetching repositories from ${ORG}..."
-repos=$(gh repo list "$ORG" --limit 1000 --json name,isArchived,isFork --jq '.[] | select(.isArchived == false and .isFork == false) | .name')
+repo_data=$(gh repo list "$ORG" --limit 1000 --json name,isArchived,isFork,defaultBranchRef --jq '.[] | select(.isArchived == false and .isFork == false) | "\(.name)|\(.defaultBranchRef.name)"')
 
-if [ -z "$repos" ]; then
+if [ -z "$repo_data" ]; then
     echo -e "${RED}No repositories found or unable to access organization.${NC}"
     exit 1
 fi
 
-repo_count=$(echo "$repos" | wc -l)
+repo_count=$(echo "$repo_data" | wc -l)
 echo -e "${GREEN}Found ${repo_count} active repositories in ${ORG}${NC}\n"
 
 # Create temporary directory for work
@@ -52,9 +52,14 @@ skipped=0
 errors=0
 
 # Process each repository
-while IFS= read -r repo; do
+while IFS='|' read -r repo default_branch; do
     echo -e "\n${YELLOW}Processing: ${ORG}/${repo}${NC}"
     ((processed++))
+    
+    # Validate default branch
+    if [ -z "$default_branch" ] || [ "$default_branch" = "null" ]; then
+        default_branch="master"  # fallback
+    fi
     
     cd "$TEMP_DIR"
     
@@ -66,21 +71,6 @@ while IFS= read -r repo; do
     fi
     
     cd "$repo"
-    
-    # Get the default branch for this repository using gh CLI
-    default_branch=$(gh repo view "${ORG}/${repo}" --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null)
-    if [ -z "$default_branch" ]; then
-        # Fallback: try to detect from git
-        default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
-        if [ -z "$default_branch" ]; then
-            # Last resort: check if main exists, otherwise use master
-            if git show-ref --verify --quiet refs/remotes/origin/main; then
-                default_branch="main"
-            else
-                default_branch="master"
-            fi
-        fi
-    fi
     
     # Check if release-drafter.yml exists
     if [ ! -f ".github/release-drafter.yml" ]; then
@@ -184,7 +174,7 @@ while IFS= read -r repo; do
         # Push branch
         if git push origin "$BRANCH_NAME" 2>/dev/null; then
             # Create pull request using a here-document for better readability
-            pr_body=$(cat <<'EOF_PR_BODY'
+            pr_body=$(cat <<'EOF'
 **Description**
 
 This PR adds the `no-duplicate-categories: true` configuration option to the release-drafter configuration file. This ensures that each merged pull request is only included at most once in the release notes, even if it has multiple labels that match different categories.
@@ -200,7 +190,7 @@ Configuration-only change. When merged, the next release draft will include each
 
 ---
 This change is being applied across all repositories in the organization.
-EOF_PR_BODY
+EOF
 )
             
             if gh pr create \
@@ -226,7 +216,7 @@ EOF_PR_BODY
     cd "$TEMP_DIR"
     rm -rf "$repo"
     
-done <<< "$repos"
+done <<< "$repo_data"
 
 # Summary
 echo -e "\n${GREEN}════════════════════════════════════════${NC}"

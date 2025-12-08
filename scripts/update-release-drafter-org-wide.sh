@@ -67,10 +67,19 @@ while IFS= read -r repo; do
     
     cd "$repo"
     
-    # Get the default branch for this repository
-    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+    # Get the default branch for this repository using gh CLI
+    default_branch=$(gh repo view "${ORG}/${repo}" --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null)
     if [ -z "$default_branch" ]; then
-        default_branch="master"  # fallback to master if detection fails
+        # Fallback: try to detect from git
+        default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+        if [ -z "$default_branch" ]; then
+            # Last resort: check if main exists, otherwise use master
+            if git show-ref --verify --quiet refs/remotes/origin/main; then
+                default_branch="main"
+            else
+                default_branch="master"
+            fi
+        fi
     fi
     
     # Check if release-drafter.yml exists
@@ -103,11 +112,32 @@ while IFS= read -r repo; do
     # Backup original file
     cp ".github/release-drafter.yml" ".github/release-drafter.yml.bak"
     
+    # Check if tag-template exists in the file
+    if ! grep -q "^tag-template:" ".github/release-drafter.yml.bak"; then
+        echo -e "${RED}  ✗ No 'tag-template:' found in release-drafter.yml${NC}"
+        ((errors++))
+        rm ".github/release-drafter.yml.bak"
+        cd "$TEMP_DIR"
+        rm -rf "$repo"
+        continue
+    fi
+    
     # Add no-duplicate-categories after tag-template line
     if ! awk '/^tag-template:/ {print; print "no-duplicate-categories: true"; next} 1' \
         ".github/release-drafter.yml.bak" > ".github/release-drafter.yml"; then
         echo -e "${RED}  ✗ Failed to update configuration${NC}"
         ((errors++))
+        rm ".github/release-drafter.yml.bak"
+        cd "$TEMP_DIR"
+        rm -rf "$repo"
+        continue
+    fi
+    
+    # Verify that no-duplicate-categories was added
+    if ! grep -q "^no-duplicate-categories:" ".github/release-drafter.yml"; then
+        echo -e "${RED}  ✗ Failed to insert no-duplicate-categories line${NC}"
+        ((errors++))
+        rm ".github/release-drafter.yml.bak"
         cd "$TEMP_DIR"
         rm -rf "$repo"
         continue
@@ -115,7 +145,16 @@ while IFS= read -r repo; do
     
     # Fix label vs labels inconsistency (singular to plural array format)
     # This handles cases where 'label:' is used instead of 'labels:'
-    sed -i 's/^    label: \(.*\)$/    labels:\n      - \1/g' ".github/release-drafter.yml"
+    # Using a more portable approach with a temporary file
+    while IFS= read -r line; do
+        if echo "$line" | grep -q "^    label: "; then
+            label_value=$(echo "$line" | sed 's/^    label: //')
+            printf "    labels:\n      - %s\n" "$label_value"
+        else
+            printf "%s\n" "$line"
+        fi
+    done < ".github/release-drafter.yml" > ".github/release-drafter.yml.tmp"
+    mv ".github/release-drafter.yml.tmp" ".github/release-drafter.yml"
     
     # Clean up backup
     rm ".github/release-drafter.yml.bak"

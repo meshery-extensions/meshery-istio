@@ -173,7 +173,8 @@ while IFS='|' read -r repo default_branch; do
         }
         
         # Push branch
-        if git push origin "$BRANCH_NAME" 2>/dev/null; then
+        push_output=$(git push origin "$BRANCH_NAME" 2>&1)
+        if [ $? -eq 0 ]; then
             # Create pull request using a here-document for better readability
             pr_body=$(cat <<'EOF'
 **Description**
@@ -194,18 +195,30 @@ This change is being applied across all repositories in the organization.
 EOF
 )
             
-            if gh pr create \
+            pr_create_output=$(gh pr create \
                 --title "[release-drafter] Prevent duplicate PR entries in release notes" \
                 --body "$pr_body" \
-                --base "$default_branch" 2>/dev/null; then
+                --base "$default_branch" 2>&1)
+            pr_create_status=$?
+            
+            if [ $pr_create_status -eq 0 ]; then
                 echo -e "${GREEN}  ✓ Successfully created PR${NC}"
+                echo -e "    ${pr_create_output}"
                 ((updated++))
             else
-                echo -e "${RED}  ✗ Failed to create PR (branch pushed successfully)${NC}"
-                ((errors++))
+                # Check if PR already exists
+                if echo "$pr_create_output" | grep -q "already exists"; then
+                    echo -e "${YELLOW}  ⊘ Skipped: PR already exists for this branch${NC}"
+                    ((skipped++))
+                else
+                    echo -e "${RED}  ✗ Failed to create PR (branch pushed successfully)${NC}"
+                    echo -e "${RED}    Error: ${pr_create_output}${NC}"
+                    ((errors++))
+                fi
             fi
         else
             echo -e "${RED}  ✗ Failed to push branch${NC}"
+            echo -e "${RED}    Error: ${push_output}${NC}"
             ((errors++))
         fi
     else

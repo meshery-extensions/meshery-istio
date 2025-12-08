@@ -149,26 +149,31 @@ while IFS= read -r repo; do
         continue
     fi
     
-    # Build gh issue create command
-    create_cmd="gh issue create --repo ${TARGET_ORG}/${repo} --title \"${issue_title}\" --body \"${issue_body}\""
+    # Build gh issue create command arguments
+    gh_args=(
+        "issue" "create"
+        "--repo" "${TARGET_ORG}/${repo}"
+        "--title" "$issue_title"
+        "--body" "$issue_body"
+    )
     
     # Add labels if present
     if [ -n "$issue_labels" ]; then
-        create_cmd="${create_cmd} --label \"${issue_labels}\""
+        gh_args+=("--label" "$issue_labels")
     fi
     
     # Add assignees if present
     if [ -n "$issue_assignees" ]; then
-        create_cmd="${create_cmd} --assignee \"${issue_assignees}\""
+        gh_args+=("--assignee" "$issue_assignees")
     fi
     
     # Add milestone if present
     if [ -n "$issue_milestone" ]; then
-        create_cmd="${create_cmd} --milestone \"${issue_milestone}\""
+        gh_args+=("--milestone" "$issue_milestone")
     fi
     
     # Create the issue
-    create_output=$(eval "$create_cmd" 2>&1)
+    create_output=$(gh "${gh_args[@]}" 2>&1)
     create_status=$?
     
     if [ $create_status -eq 0 ]; then

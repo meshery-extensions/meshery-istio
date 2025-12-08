@@ -1,6 +1,13 @@
-# Organization-Wide Release Drafter Update Script
+# Organization-Wide Automation Scripts
 
-This directory contains a script to apply the release-drafter configuration changes across all repositories in the `meshery-extensions` organization.
+This directory contains scripts for automating tasks across all repositories in an organization.
+
+## Available Scripts
+
+1. **`update-release-drafter-org-wide.sh`** - Updates release-drafter configuration across repositories
+2. **`clone-issue-org-wide.sh`** - Clones a GitHub issue to all repositories in an organization
+
+---
 
 ## Script: `update-release-drafter-org-wide.sh`
 
@@ -174,6 +181,56 @@ You can modify the script variables at the top:
 - Provides detailed feedback for each operation
 - Continues processing even if individual repositories fail
 
+---
+
+## Script 2: `clone-issue-org-wide.sh`
+
+### Purpose
+
+This script clones (replicates) a GitHub issue to all active repositories in an organization. The cloned issues will have the same title, body, labels, assignees, and milestone as the source issue.
+
+### Usage
+
+**Basic usage (clone to same organization):**
+```bash
+./scripts/clone-issue-org-wide.sh <issue-url>
+```
+
+**Clone to different organization:**
+```bash
+./scripts/clone-issue-org-wide.sh <issue-url> <target-organization>
+```
+
+### Examples
+
+```bash
+# Clone issue to all repos in the same organization
+./scripts/clone-issue-org-wide.sh https://github.com/meshery-extensions/meshery-istio/issues/123
+
+# Clone issue to all repos in a different organization
+./scripts/clone-issue-org-wide.sh https://github.com/meshery-extensions/meshery-istio/issues/123 my-other-org
+```
+
+### Features
+
+- Clones issue title, body, labels, assignees, and milestone
+- Supports custom target organization
+- Automatically skips source repository to avoid duplicates
+- Skips repositories with issues disabled
+- Adds reference to source issue in cloned issue body
+- Interactive confirmation before creating issues
+- Detailed progress reporting with color-coded output
+
+### Prerequisites
+
+- GitHub CLI (`gh`) installed and authenticated
+- `jq` JSON processor installed
+- Write access to repositories in the target organization
+
+For detailed documentation, see [CLONE-ISSUE-README.md](./CLONE-ISSUE-README.md)
+
+---
+
 ## Related Documentation
 
 - [Release Drafter Action](https://github.com/release-drafter/release-drafter)
@@ -182,4 +239,4 @@ You can modify the script variables at the top:
 
 ## Support
 
-For issues or questions about this script, please refer to the PR where this script was introduced or open an issue in the repository.
+For issues or questions about these scripts, please refer to the PR where they were introduced or open an issue in the repository.

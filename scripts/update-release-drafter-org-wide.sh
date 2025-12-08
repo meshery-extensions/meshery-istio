@@ -145,9 +145,15 @@ while IFS= read -r repo; do
     
     # Fix label vs labels inconsistency (singular to plural array format)
     # This handles cases where 'label:' is used instead of 'labels:'
+    # Detects indentation dynamically (2 or 4 spaces)
     # Using a more portable approach with a temporary file
     while IFS= read -r line; do
-        if echo "$line" | grep -q "^    label: "; then
+        # Check for 2-space indented label
+        if echo "$line" | grep -q "^  label: "; then
+            label_value=$(echo "$line" | sed 's/^  label: //')
+            printf "  labels:\n    - %s\n" "$label_value"
+        # Check for 4-space indented label
+        elif echo "$line" | grep -q "^    label: "; then
             label_value=$(echo "$line" | sed 's/^    label: //')
             printf "    labels:\n      - %s\n" "$label_value"
         else
@@ -177,24 +183,29 @@ while IFS= read -r repo; do
         
         # Push branch
         if git push origin "$BRANCH_NAME" 2>/dev/null; then
-            # Create pull request
-            if gh pr create \
-                --title "[release-drafter] Prevent duplicate PR entries in release notes" \
-                --body "**Description**
+            # Create pull request using a here-document for better readability
+            pr_body=$(cat <<'EOF_PR_BODY'
+**Description**
 
-This PR adds the \`no-duplicate-categories: true\` configuration option to the release-drafter configuration file. This ensures that each merged pull request is only included at most once in the release notes, even if it has multiple labels that match different categories.
+This PR adds the `no-duplicate-categories: true` configuration option to the release-drafter configuration file. This ensures that each merged pull request is only included at most once in the release notes, even if it has multiple labels that match different categories.
 
 **Changes:**
-- Added \`no-duplicate-categories: true\` to \`.github/release-drafter.yml\`
+- Added `no-duplicate-categories: true` to `.github/release-drafter.yml`
   - PRs now appear only in the first matching category based on defined order
-- Standardized any singular \`label:\` format to use \`labels:\` array format for consistency
+- Standardized any singular `label:` format to use `labels:` array format for consistency
 
 **Notes for Reviewers**
 
 Configuration-only change. When merged, the next release draft will include each PR at most once.
 
 ---
-This change is being applied across all repositories in the ${ORG} organization." \
+This change is being applied across all repositories in the organization.
+EOF_PR_BODY
+)
+            
+            if gh pr create \
+                --title "[release-drafter] Prevent duplicate PR entries in release notes" \
+                --body "$pr_body" \
                 --base "$default_branch" 2>/dev/null; then
                 echo -e "${GREEN}  ✓ Successfully created PR${NC}"
                 ((updated++))

@@ -67,6 +67,12 @@ while IFS= read -r repo; do
     
     cd "$repo"
     
+    # Get the default branch for this repository
+    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+    if [ -z "$default_branch" ]; then
+        default_branch="master"  # fallback to master if detection fails
+    fi
+    
     # Check if release-drafter.yml exists
     if [ ! -f ".github/release-drafter.yml" ]; then
         echo -e "  ⊘ Skipped: No .github/release-drafter.yml file found"
@@ -149,9 +155,8 @@ This PR adds the \`no-duplicate-categories: true\` configuration option to the r
 Configuration-only change. When merged, the next release draft will include each PR at most once.
 
 ---
-This change is being applied across all repositories in the ${ORG} organization.
-Related to: meshery-extensions/meshery-istio#[PR_NUMBER]" \
-                --base master 2>/dev/null; then
+This change is being applied across all repositories in the ${ORG} organization." \
+                --base "$default_branch" 2>/dev/null; then
                 echo -e "${GREEN}  ✓ Successfully created PR${NC}"
                 ((updated++))
             else

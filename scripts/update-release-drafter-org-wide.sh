@@ -58,7 +58,7 @@ while IFS='|' read -r repo default_branch; do
     
     # Validate default branch
     if [ -z "$default_branch" ] || [ "$default_branch" = "null" ]; then
-        default_branch="master"  # fallback
+        default_branch="main"  # fallback to modern default
     fi
     
     cd "$TEMP_DIR"
@@ -135,21 +135,22 @@ while IFS='|' read -r repo default_branch; do
     
     # Fix label vs labels inconsistency (singular to plural array format)
     # This handles cases where 'label:' is used instead of 'labels:'
-    # Detects indentation dynamically (2 or 4 spaces)
-    # Using a more portable approach with a temporary file
-    while IFS= read -r line; do
-        # Check for 2-space indented label
-        if echo "$line" | grep -q "^  label: "; then
-            label_value=$(echo "$line" | sed 's/^  label: //')
-            printf "  labels:\n    - %s\n" "$label_value"
-        # Check for 4-space indented label
-        elif echo "$line" | grep -q "^    label: "; then
-            label_value=$(echo "$line" | sed 's/^    label: //')
-            printf "    labels:\n      - %s\n" "$label_value"
-        else
-            printf "%s\n" "$line"
-        fi
-    done < ".github/release-drafter.yml" > ".github/release-drafter.yml.tmp"
+    # Detects indentation dynamically (2 or 4 spaces) using a single awk pass
+    awk '
+    /^  label: / {
+        value = substr($0, 11);  # Extract value after "  label: "
+        print "  labels:";
+        print "    - " value;
+        next;
+    }
+    /^    label: / {
+        value = substr($0, 13);  # Extract value after "    label: "
+        print "    labels:";
+        print "      - " value;
+        next;
+    }
+    { print }
+    ' ".github/release-drafter.yml" > ".github/release-drafter.yml.tmp"
     mv ".github/release-drafter.yml.tmp" ".github/release-drafter.yml"
     
     # Clean up backup

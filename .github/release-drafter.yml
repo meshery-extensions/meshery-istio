@@ -17,7 +17,8 @@ categories:
       - 'area/ci'
       - 'area/tests'
   - title: 📖 Documentation
-    label: area/docs 
+    labels:
+      - area/docs 
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## What's new ?

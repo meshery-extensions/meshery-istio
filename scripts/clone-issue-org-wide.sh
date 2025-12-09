@@ -2,6 +2,7 @@
 
 # Script to clone a GitHub issue to multiple repositories in an organization
 # This creates a replica of the source issue with the same title, body, labels, assignees, and milestone
+# Version: 1.1 (Fixed special character handling with array arguments)
 
 set -e
 
@@ -21,6 +22,14 @@ fi
 # Check if user is authenticated
 if ! gh auth status &> /dev/null; then
     echo -e "${RED}Error: Not authenticated with GitHub CLI. Run 'gh auth login' first.${NC}"
+    exit 1
+fi
+
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo -e "${RED}Error: jq is not installed. Please install it:${NC}"
+    echo -e "${RED}  macOS: brew install jq${NC}"
+    echo -e "${RED}  Linux: sudo apt-get install jq${NC}"
     exit 1
 fi
 
@@ -143,6 +152,13 @@ while IFS= read -r repo; do
     
     # Check if repository has issues enabled
     repo_info=$(gh repo view "${TARGET_ORG}/${repo}" --json hasIssuesEnabled --jq '.hasIssuesEnabled' 2>&1)
+    repo_check_status=$?
+    if [ $repo_check_status -ne 0 ]; then
+        echo -e "${RED}  ✗ Failed to check repository${NC}"
+        echo -e "${RED}    Error: ${repo_info}${NC}"
+        ((errors++))
+        continue
+    fi
     if [ "$repo_info" != "true" ]; then
         echo -e "${YELLOW}  ⊘ Skipped: Issues not enabled${NC}"
         ((skipped++))

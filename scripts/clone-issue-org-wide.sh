@@ -2,7 +2,7 @@
 
 # Script to clone a GitHub issue to multiple repositories in an organization
 # This creates a replica of the source issue with the same title, body, labels, assignees, and milestone
-# Version: 1.1 (Fixed special character handling with array arguments)
+# Version: 1.2 (Simplified issue creation to avoid hanging on missing labels)
 
 set -e
 
@@ -165,32 +165,26 @@ while IFS= read -r repo; do
         continue
     fi
     
-    # Build gh issue create command arguments
-    gh_args=(
-        "issue" "create"
-        "--repo" "${TARGET_ORG}/${repo}"
-        "--title" "$issue_title"
-        "--body" "$issue_body"
-    )
+    # Create issue without optional attributes that might not exist in target repo
+    # This avoids issues where labels, assignees, or milestones don't exist
+    echo -e "  Creating issue..."
     
-    # Add labels if present
-    if [ -n "$issue_labels" ]; then
-        gh_args+=("--label" "$issue_labels")
-    fi
-    
-    # Add assignees if present
-    if [ -n "$issue_assignees" ]; then
-        gh_args+=("--assignee" "$issue_assignees")
-    fi
-    
-    # Add milestone if present
-    if [ -n "$issue_milestone" ]; then
-        gh_args+=("--milestone" "$issue_milestone")
-    fi
-    
-    # Create the issue
-    create_output=$(gh "${gh_args[@]}" 2>&1)
+    # Start with basic issue creation
+    create_output=$(gh issue create \
+        --repo "${TARGET_ORG}/${repo}" \
+        --title "$issue_title" \
+        --body "$issue_body" 2>&1)
     create_status=$?
+    
+    # If successful and we have labels, try to add them
+    if [ $create_status -eq 0 ] && [ -n "$issue_labels" ]; then
+        issue_url="$create_output"
+        issue_number=$(echo "$issue_url" | grep -oE '[0-9]+$')
+        if [ -n "$issue_number" ] && [ -n "$issue_labels" ]; then
+            # Try to add labels (ignore failure if labels don't exist)
+            gh issue edit "$issue_number" --repo "${TARGET_ORG}/${repo}" --add-label "$issue_labels" 2>/dev/null || true
+        fi
+    fi
     
     if [ $create_status -eq 0 ]; then
         echo -e "${GREEN}  ✓ Issue created: ${create_output}${NC}"

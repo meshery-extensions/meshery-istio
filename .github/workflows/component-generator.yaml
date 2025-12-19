@@ -13,15 +13,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
           token: ${{ secrets.GH_ACCESS_TOKEN }}
           ref: "master"
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.23
+          go-version: 1.25
       - name: Run adapter to create components
         run: |
           touch log.txt
@@ -36,8 +36,7 @@ jobs:
           done
           rm log.txt
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
+        uses: stefanzweifel/git-auto-commit-action@v7
           file_pattern: templates/
           commit_user_name: l5io
           commit_user_email: ci@layer5.io

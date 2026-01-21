@@ -69,9 +69,8 @@ jobs:
     if: "always() && github.event_name != 'pull_request' "
     runs-on: ubuntu-22.04
     steps:
-      - name: Skip if needed
+      - name: Set version
         run: |
-          echo "this is it ${{ needs.SkipIfNeeded.outputs.skipdocupdate }} "
           if [ "${{github.event_name }}" == "push" ];then
             echo "version=edge" >> $GITHUB_ENV
           fi
@@ -82,41 +81,57 @@ jobs:
         with:
           repository: meshery/meshery
           token: ${{ secrets.GH_ACCESS_TOKEN }}
-      - name: DownloadJSON
+          ref: "master"
+      - name: Download test results for all K8s versions
         uses: actions/download-artifact@v4
         with:
-          name: patternfile
+          pattern: data.json-v*
+          path: ./test-results
+          merge-multiple: false
       - name: Add commit SHORT_SHA
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
-      - name: echo results
+      - name: Generate docs with all K8s versions
         run: |
-          pretty=$(jq . data.json)
-          rm data.json
-
           cd ./docs/_compatibility/meshery-istio
-          touch data.json
-          echo $pretty > data.json
-          cat data.json
-          touch test.md
-          filename=(`date +%m-%d-%Y-%H-%M-%m_${SHORT_SHA}`)
-          echo $filename
-          echo "---
-          timestamp: $(jq '.metadata.runon| strptime("%a %b %e %X %Z %Y") | strftime("%Y-%m-%d %X %Z %a")' data.json)
+          filename=$(date +%m-%d-%Y-%H-%M-%S)_${SHORT_SHA}
+          result_files=($(find ../../../test-results -name "data.json" -type f | sort))
+
+          if [ ${#result_files[@]} -eq 0 ]; then
+            echo "ERROR: No test results found!"
+            exit 1
+          fi
+
+          echo "Found ${#result_files[@]} test result(s)"
+          first_result="${result_files[0]}"
+
+          cat > $filename.md << EOF
+          ---
+          timestamp: $(jq -r '.metadata.runon | strptime("%a %b %e %X %Z %Y") | strftime("%Y-%m-%d %X %Z %a")' "$first_result")
           meshery-component: meshery-istio
           meshery-component-version: $version
-          meshery-server-version: $(jq '.metadata."meshery-server-version"' data.json)
+          meshery-server-version: $(jq -r '.metadata."meshery-server-version"' "$first_result")
           k8s-distro: minikube
-          k8s-version: $(jq '.metadata.k8s_version' data.json)
           service-mesh: istio
-          service-mesh-version: $(jq '.metadata.service_mesh_version' data.json)
+          service-mesh-version: $(jq -r '.metadata.service_mesh_version' "$first_result")
           tests:
-            pod/istiod: $(jq '.resources_status."pod/istiod"' data.json)
-            pod/istio-egressgateway: $(jq '.resources_status."pod/istio-egressgateway"' data.json)
-            pod/istio-ingressgateway:  $(jq '.resources_status."pod/istio-ingressgateway"' data.json)
-          overall-status: $(jq '."overall-status"' data.json)
-          ---" >  test.md
-          mv test.md $filename.md
-          rm data.json
+          EOF
+
+          for result_file in "${result_files[@]}"; do
+            k8s_ver=$(jq -r '.metadata.k8s_version' "$result_file")
+            echo "  Processing results for K8s $k8s_ver"
+            
+            cat >> $filename.md << EOF
+            - k8s-version: $k8s_ver
+              pod/istiod: $(jq -r '.resources_status."pod/istiod"' "$result_file")
+              pod/istio-egressgateway: $(jq -r '.resources_status."pod/istio-egressgateway"' "$result_file")
+              pod/istio-ingressgateway: $(jq -r '.resources_status."pod/istio-ingressgateway"' "$result_file")
+              overall-status: $(jq -r '."overall-status"' "$result_file")
+          EOF
+          done
+
+          echo "---" >> $filename.md
+          echo "Generated doc: $filename.md"
+          cat $filename.md
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
@@ -184,9 +199,8 @@ jobs:
     if: "always() && github.event_name != 'pull_request' "
     runs-on: ubuntu-22.04
     steps:
-      - name: Skip if needed
+      - name: Set version
         run: |
-          echo "this is it ${{ needs.SkipIfNeeded.outputs.skipdocupdate }} "
           if [ "${{github.event_name }}" == "push" ];then
             echo "version=edge" >> $GITHUB_ENV
           fi
@@ -197,43 +211,58 @@ jobs:
         with:
           repository: meshery/meshery
           token: ${{ secrets.GH_ACCESS_TOKEN }}
-      - name: DownloadJSON
+          ref: "master"
+      - name: Download test results for all K8s versions
         uses: actions/download-artifact@v4
         with:
-          name: patternfile-servicemesh-addon
+          pattern: data.json-v*
+          path: ./test-results
+          merge-multiple: false
       - name: Add commit SHORT_SHA
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
-      - name: echo results
+      - name: Generate docs with all K8s versions
         run: |
-          pretty=$(jq . data.json)
-          rm data.json
-
           cd ./docs/_compatibility/meshery-istio
-          touch data.json
-          echo $pretty > data.json
-          cat data.json
-          touch test.md
-          filename=(`date +%m-%d-%Y-%H-%M-%m_${SHORT_SHA}`)
-          echo $filename
-          echo "---
-          timestamp: $(jq '.metadata.runon| strptime("%a %b %e %X %Z %Y") | strftime("%Y-%m-%d %X %Z %a")' data.json)
+          filename=$(date +%m-%d-%Y-%H-%M-%S)_${SHORT_SHA}
+          result_files=($(find ../../../test-results -name "data.json" -type f | sort))
+
+          if [ ${#result_files[@]} -eq 0 ]; then
+            echo "ERROR: No test results found!"
+            exit 1
+          fi
+
+          echo "Found ${#result_files[@]} test result(s)"
+          first_result="${result_files[0]}"
+
+          cat > $filename.md << EOF
+          ---
+          timestamp: $(jq -r '.metadata.runon | strptime("%a %b %e %X %Z %Y") | strftime("%Y-%m-%d %X %Z %a")' "$first_result")
           meshery-component: meshery-istio
           meshery-component-version: $version
-          meshery-server-version: $(jq '.metadata."meshery-server-version"' data.json)
+          meshery-server-version: $(jq -r '.metadata."meshery-server-version"' "$first_result")
           k8s-distro: minikube
-          k8s-version: $(jq '.metadata.k8s_version' data.json)
           service-mesh: istio
-          service-mesh-version: $(jq '.metadata.service_mesh_version' data.json)
+          service-mesh-version: $(jq -r '.metadata.service_mesh_version' "$first_result")
           tests:
-            pod/istiod: $(jq '.resources_status."pod/istiod"' data.json)
-            pod/istio-egressgateway: $(jq '.resources_status."pod/istio-egressgateway"' data.json)
-            pod/istio-ingressgateway:  $(jq '.resources_status."pod/istio-ingressgateway"' data.json)
-            pod/grafana-addon: $(jq '.resources_status."pod/grafana"' data.json)
-            pod/prometheus-addon: $(jq '.resources_status."pod/prometheus"' data.json)
-          overall-status: $(jq '."overall-status"' data.json)
-          ---" >  test.md
-          mv test.md $filename.md
-          rm data.json
+          EOF
+
+          for result_file in "${result_files[@]}"; do
+            k8s_ver=$(jq -r '.metadata.k8s_version' "$result_file")
+            echo "  Processing results for K8s $k8s_ver"
+            
+            cat >> $filename.md << EOF
+            - k8s-version: $k8s_ver
+              pod/istiod: $(jq -r '.resources_status."pod/istiod"' "$result_file")
+              pod/istio-egressgateway: $(jq -r '.resources_status."pod/istio-egressgateway"' "$result_file")
+              pod/istio-ingressgateway: $(jq -r '.resources_status."pod/istio-ingressgateway"' "$result_file")
+              pod/grafana: $(jq -r '.resources_status."pod/grafana"' "$result_file")
+              pod/prometheus: $(jq -r '.resources_status."pod/prometheus"' "$result_file")
+              overall-status: $(jq -r '."overall-status"' "$result_file")
+          EOF
+          done
+
+          echo "---" >> $filename.md
+          cat $filename.md
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
@@ -299,9 +328,8 @@ jobs:
     if: "always() && github.event_name != 'pull_request'"
     runs-on: ubuntu-22.04
     steps:
-      - name: Skip if needed
+      - name: Set version
         run: |
-          echo "this is it ${{ needs.SkipIfNeeded.outputs.skipdocupdate }} "
           if [ "${{github.event_name }}" == "push" ];then
             echo "version=edge" >> $GITHUB_ENV
           fi
@@ -312,45 +340,60 @@ jobs:
         with:
           repository: meshery/meshery
           token: ${{ secrets.GH_ACCESS_TOKEN }}
-      - name: DownloadJSON
+          ref: "master"
+      - name: Download test results for all K8s versions
         uses: actions/download-artifact@v4
         with:
-          name: patternfile-servicemesh-sample-app
+          pattern: data.json-v*
+          path: ./test-results
+          merge-multiple: false
       - name: Add commit SHORT_SHA
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
-      - name: echo results
+      - name: Generate docs with all K8s versions
         run: |
-          pretty=$(jq . data.json)
-          rm data.json
-
           cd ./docs/_compatibility/meshery-istio
-          touch data.json
-          echo $pretty > data.json
-          cat data.json
-          touch test.md
-          filename=(`date +%m-%d-%Y-%H-%M-%m_${SHORT_SHA}`)
-          echo $filename
-          echo "---
-          timestamp: $(jq '.metadata.runon| strptime("%a %b %e %X %Z %Y") | strftime("%Y-%m-%d %X %Z %a")' data.json)
+          filename=$(date +%m-%d-%Y-%H-%M-%S)_${SHORT_SHA}
+          result_files=($(find ../../../test-results -name "data.json" -type f | sort))
+
+          if [ ${#result_files[@]} -eq 0 ]; then
+            echo "ERROR: No test results found!"
+            exit 1
+          fi
+
+          echo "Found ${#result_files[@]} test result(s)"
+          first_result="${result_files[0]}"
+
+          cat > $filename.md << EOF
+          ---
+          timestamp: $(jq -r '.metadata.runon | strptime("%a %b %e %X %Z %Y") | strftime("%Y-%m-%d %X %Z %a")' "$first_result")
           meshery-component: meshery-istio
           meshery-component-version: $version
-          meshery-server-version: $(jq '.metadata."meshery-server-version"' data.json)
+          meshery-server-version: $(jq -r '.metadata."meshery-server-version"' "$first_result")
           k8s-distro: minikube
-          k8s-version: $(jq '.metadata.k8s_version' data.json)
           service-mesh: istio
-          service-mesh-version: $(jq '.metadata.service_mesh_version' data.json)
+          service-mesh-version: $(jq -r '.metadata.service_mesh_version' "$first_result")
           tests:
-            pod/istiod: $(jq '.resources_status."pod/istiod"' data.json)
-            pod/details: $(jq '.resources_status."pod/details"' data.json)
-            pod/productpage: $(jq '.resources_status."pod/productpage"' data.json)
-            pod/ratings: $(jq '.resources_status."pod/ratings"' data.json)
-            pod/reviews-v1: $(jq '.resources_status."pod/reviews-v1"' data.json)
-            pod/reviews-v2: $(jq '.resources_status."pod/reviews-v2"' data.json)
-            pod/reviews-v3: $(jq '.resources_status."pod/reviews-v3"' data.json)
-          overall-status: $(jq '."overall-status"' data.json)
-          ---" >  test.md
-          mv test.md $filename.md
-          rm data.json
+          EOF
+
+          for result_file in "${result_files[@]}"; do
+            k8s_ver=$(jq -r '.metadata.k8s_version' "$result_file")
+            echo "  Processing results for K8s $k8s_ver"
+            
+            cat >> $filename.md << EOF
+            - k8s-version: $k8s_ver
+              pod/istiod: $(jq -r '.resources_status."pod/istiod"' "$result_file")
+              pod/details: $(jq -r '.resources_status."pod/details"' "$result_file")
+              pod/productpage: $(jq -r '.resources_status."pod/productpage"' "$result_file")
+              pod/ratings: $(jq -r '.resources_status."pod/ratings"' "$result_file")
+              pod/reviews-v1: $(jq -r '.resources_status."pod/reviews-v1"' "$result_file")
+              pod/reviews-v2: $(jq -r '.resources_status."pod/reviews-v2"' "$result_file")
+              pod/reviews-v3: $(jq -r '.resources_status."pod/reviews-v3"' "$result_file")
+              overall-status: $(jq -r '."overall-status"' "$result_file")
+          EOF
+          done
+
+          echo "---" >> $filename.md
+          cat $filename.md
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v4
         with:

@@ -12,23 +12,23 @@ jobs:
     if: github.repository == 'meshery/meshery-istio'
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         # token here with write access to meshery-istio repo
         with:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
           ref: "master"
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.23
+          go-version: 1.25
 
       - name: Run utility
         run: |
           go run github.com/meshery/meshkit/cmd/errorutil -d . update --skip-dirs meshery -i ./helpers -o ./helpers
       # to update errorutil* files in meshkit repo
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_user_name: l5io
           commit_user_email: ci@meshery.io
@@ -39,7 +39,7 @@ jobs:
 
       # to push changes to meshery docs
       - name: Checkout meshery
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: "meshery/meshery"
           # token with write access to meshery repository
@@ -52,7 +52,7 @@ jobs:
           echo '{ "errors_export": "" }' | jq --slurpfile export ./helpers/errorutil_errors_export.json '.errors_export = $export[0]' > ./meshery/docs/_data/errorref/istio_errors_export.json
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           repository: ./meshery
           commit_user_name: l5io

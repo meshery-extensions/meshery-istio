@@ -56,7 +56,7 @@ jobs:
         with:
           source_folder: "output"
           destination_repo: "meshery/meshery"
-          destination_folder: "docs/_integrations/istio"
+          destination_folder: "docs/integrations/istio"
           destination_branch: "master"
           user_email: "ci@layer5.io"
           user_name: "l5io"

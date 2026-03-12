@@ -49,7 +49,7 @@ jobs:
 
       - name: Update docs
         run: |
-          echo '{ "errors_export": "" }' | jq --slurpfile export ./helpers/errorutil_errors_export.json '.errors_export = $export[0]' > ./meshery/docs/_data/errorref/istio_errors_export.json
+          echo '{ "errors_export": "" }' | jq --slurpfile export ./helpers/errorutil_errors_export.json '.errors_export = $export[0]' > ./meshery/docs/data/errorref/istio_errors_export.json
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4

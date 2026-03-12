@@ -93,7 +93,7 @@ jobs:
           pretty=$(jq . data.json)
           rm data.json
 
-          cd ./docs/_compatibility/meshery-istio
+          cd ./docs/content/en/project/compatibility/meshery-istio
           touch data.json
           echo $pretty > data.json
           cat data.json
@@ -208,7 +208,7 @@ jobs:
           pretty=$(jq . data.json)
           rm data.json
 
-          cd ./docs/_compatibility/meshery-istio
+          cd ./docs/content/en/project/compatibility/meshery-istio
           touch data.json
           echo $pretty > data.json
           cat data.json
@@ -323,7 +323,7 @@ jobs:
           pretty=$(jq . data.json)
           rm data.json
 
-          cd ./docs/_compatibility/meshery-istio
+          cd ./docs/content/en/project/compatibility/meshery-istio
           touch data.json
           echo $pretty > data.json
           cat data.json

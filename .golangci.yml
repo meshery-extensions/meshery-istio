@@ -1,4 +1,6 @@
 linters-settings:
+  staticcheck:
+    checks: ["all", "-ST1005"]
   gci:
     enabled: true
     max-len: 120
@@ -49,6 +51,7 @@ linters:
     - unused
     - cyclop
     - scopelint
+    - staticcheck
   exclude-rules:
     - testpackage
 

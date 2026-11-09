@@ -16,12 +16,12 @@ jobs:
     name: golangci-lint
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
           # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
           version: latest
@@ -34,11 +34,11 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - name: Create cluster using KinD

@@ -162,7 +162,7 @@ jobs:
 
   TestIstioForServicemeshAndAddon:
     needs: SetPatternfileForServicemeshAndAddon
-    uses: meshery/meshery/.github/workflows/test_adaptersv2.yaml@master
+    uses: meshery/meshery/.github/workflows/test_adaptersv2.yaml@07a8e616d0e2ca68b463e0f4a3374466683a731b
     with:
       expected_resources: istiod,istio-egressgateway,istio-ingressgateway,grafana,prometheus
       expected_resources_types: pod,pod,pod,pod,pod

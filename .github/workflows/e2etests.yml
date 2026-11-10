@@ -22,6 +22,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref }}
+        
       - name: Get version of adapter
         run: |
           if [ ${{ github.event_name }} == "release" ];then

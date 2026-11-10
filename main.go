@@ -60,7 +60,7 @@ func main() {
 	}
 	log, err := logger.New(serviceName, logger.Options{
 		Format:     logger.SyslogLogFormat,
-		LogLevel: int(logLevel),
+		DebugLevel: int(logLevel) == int(logrus.DebugLevel),
 	})
 	if err != nil {
 		fmt.Println(err)

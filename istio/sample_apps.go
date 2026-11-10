@@ -134,13 +134,13 @@ func (istio *Istio) LoadToMesh(namespace string, service string, remove bool, ku
 				return
 			}
 
-			if deploy.ObjectMeta.Labels == nil {
-				deploy.ObjectMeta.Labels = map[string]string{}
+			if deploy.Labels == nil {
+				deploy.Labels = map[string]string{}
 			}
-			deploy.ObjectMeta.Labels["istio-injection"] = "enabled"
+			deploy.Labels["istio-injection"] = "enabled"
 
 			if remove {
-				delete(deploy.ObjectMeta.Labels, "istio-injection")
+				delete(deploy.Labels, "istio-injection")
 			}
 
 			_, err = kclient.KubeClient.AppsV1().Deployments(namespace).Update(context.TODO(), deploy, metav1.UpdateOptions{})
@@ -185,13 +185,13 @@ func (istio *Istio) LoadNamespaceToMesh(namespace string, remove bool, kubeconfi
 				// return ErrLoadNamespace(err, namespace)
 				return
 			}
-			if ns.ObjectMeta.Labels == nil {
-				ns.ObjectMeta.Labels = map[string]string{}
+			if ns.Labels == nil {
+				ns.Labels = map[string]string{}
 			}
-			ns.ObjectMeta.Labels["istio-injection"] = "enabled"
+			ns.Labels["istio-injection"] = "enabled"
 
 			if remove {
-				delete(ns.ObjectMeta.Labels, "istio-injection")
+				delete(ns.Labels, "istio-injection")
 			}
 
 			_, err = kclient.KubeClient.CoreV1().Namespaces().Update(context.TODO(), ns, metav1.UpdateOptions{})

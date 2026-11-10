@@ -21,7 +21,7 @@ jobs:
       adapter_version: ${{ env.version }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Get version of adapter
         run: |
           if [ ${{ github.event_name }} == "release" ];then
@@ -40,7 +40,7 @@ jobs:
           yq e -i '.services.istio.version="${{ steps.gettag.outputs.release }}"' ./.github/install/deploy.yaml 
           cat ./.github/install/deploy.yaml
       - name: Uploading file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: patternfile
           path: ./.github/install/deploy.yaml

@@ -19,7 +19,7 @@ GIT_VERSION	= $(shell git describe --tags `git rev-list --tags --max-count=1`)
 GIT_COMMITSHA = $(shell git rev-list -1 HEAD)
 GIT_STRIPPED_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1` | cut -c 2-)
 
-GOVERSION = 1.26.4
+GOVERSION = 1.27.3
 GOPATH = $(shell go env GOPATH)
 GOBIN  = $(GOPATH)/bin
 

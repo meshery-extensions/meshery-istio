@@ -22,6 +22,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref }}
+        
       - name: Get version of adapter
         run: |
           if [ ${{ github.event_name }} == "release" ];then
@@ -162,7 +165,7 @@ jobs:
 
   TestIstioForServicemeshAndAddon:
     needs: SetPatternfileForServicemeshAndAddon
-    uses: meshery/meshery/.github/workflows/test_adaptersv2.yaml@master
+    uses: meshery/meshery/.github/workflows/test_adaptersv2.yaml@6277702f3b247970d320ce0b4139d7f6d714c977
     with:
       expected_resources: istiod,istio-egressgateway,istio-ingressgateway,grafana,prometheus
       expected_resources_types: pod,pod,pod,pod,pod
